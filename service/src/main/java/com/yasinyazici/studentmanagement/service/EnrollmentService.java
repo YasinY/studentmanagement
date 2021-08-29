@@ -56,30 +56,24 @@ public class EnrollmentService {
     }
 
     public void createNewStudent(String universityName, String name, String studentAddress) {
-        if (!studentRepository.findByName(name).isEmpty() && !studentRepository.findByAddress(studentAddress).isEmpty()) {
+        final boolean studentAlreadyExists = !studentRepository.findByName(name).isEmpty() && !studentRepository.findByAddress(studentAddress).isEmpty();
+        if (studentAlreadyExists) {
             throw new ExistentStudentException(name);
         }
         final UniversityDao universityDao = retrieveUniversityDao(universityName);
         final UniversityEnrollment universityEnrollment = generateNewUniversityEnrollment(universityName);
-        final StudentDao studentDao = studentDaoFactory.create(name, studentAddress, universityEnrollment);
 
-        universityDao.getStudentEnrollmentIds().add(studentDao.getUniversityEnrollment().getEnrollmentId());
-        studentRepository.save(studentDao);
+        final StudentDao createdStudentDto = studentDaoFactory.create(name, studentAddress, universityEnrollment);
+        studentRepository.save(createdStudentDto);
+
+        universityDao.getStudentEnrollmentIds().add(createdStudentDto.getUniversityEnrollment().getEnrollmentId());
+
         universityRepository.save(universityDao);
         log.info("Created new student");
     }
 
-    public List<StudentDto> getExistingStudents() {
-        final List<StudentDto> studentDtos = studentRepository.findAll().stream().map(studentDaoToDtoMapper::toValue).collect(Collectors.toList());
-
-        return studentDtos;
-    }
-
     public void updateExistingStudent(String newUniversityName, String name, String address) {
-        StudentDao student = studentRepository.findByNameAndAddress(name, address);
-        if (student == null) { //todo usually optionals would be better, does mongo support that? idk no time
-            throw new NotExistentStudentException(name, address);
-        }
+        StudentDao student = getStudent(name, address);
 
         final UniversityEnrollment studentUniversityEnrollment = student.getUniversityEnrollment();
 
@@ -90,6 +84,29 @@ public class EnrollmentService {
         if (universityChanged) {
             handleUniversityChange(newUniversityName, student, currentUniversityDao);
         }
+    }
+
+    public List<StudentDto> getExistingStudents() {
+        final List<StudentDto> studentDtos = studentRepository.findAll().stream().map(studentDaoToDtoMapper::toValue).collect(Collectors.toList());
+
+        return studentDtos;
+    }
+
+    public void deleteStudent(String name, String address) {
+        final StudentDao student = getStudent(name, address);
+        final UniversityDao universityDao = retrieveUniversityDao(student.getUniversityEnrollment().getUniversityName());
+
+        studentRepository.delete(student);
+        universityDao.getStudentEnrollmentIds().removeIf(universityDaoId -> universityDaoId == student.getUniversityEnrollment().getEnrollmentId());
+    }
+
+    private StudentDao getStudent(String name, String address) {
+        StudentDao student = studentRepository.findByNameAndAddress(name, address);
+        if (student == null) { //todo usually optionals would be better, does mongo support that? idk no time
+            throw new NotExistentStudentException(name, address);
+        }
+
+        return student;
     }
 
     private void handleUniversityChange(String newUniversityName, StudentDao student, UniversityDao currentUniversityDao) {
@@ -111,9 +128,5 @@ public class EnrollmentService {
         studentRepository.save(student);
         newUniversityDao.getStudentEnrollmentIds().add(newEnrollmentData.getEnrollmentId());
         universityRepository.save(newUniversityDao);
-    }
-
-    public void removeStudent(String name, String address) {
-
     }
 }
