@@ -25,9 +25,12 @@ public class StudentController {
     }
 
     @GetMapping(value = "/student", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<StudentDto>> getStudents() {
+    public ResponseEntity<List<StudentDto>> getStudents(@RequestParam(required = false) String university) {
 
-        return ResponseEntity.ok(enrollmentService.getExistingStudents());
+        if(university != null) {
+            return ResponseEntity.ok(enrollmentService.getExistingStudents(university));
+        }
+        return ResponseEntity.ok(enrollmentService.getExistingStudents(""));
     }
 
     @PostMapping(value = "/student", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -46,7 +49,7 @@ public class StudentController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping(value = "/student", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PatchMapping(value = "/student", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> updateUniversity(@RequestBody Map<String, String> body) {
         if (bodyValidation.invalidBody(body) && !body.containsKey("universityName")) {
             return ResponseEntity.badRequest().build();

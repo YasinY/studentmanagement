@@ -87,10 +87,18 @@ public class EnrollmentService {
         });
     }
 
-    public List<StudentDto> getExistingStudents() {
-        final List<StudentDto> studentDtos = studentRepository.findAll().stream().map(studentDaoToDtoMapper::toValue).collect(Collectors.toList());
+    public List<StudentDto> getExistingStudents(String university) {
 
-        return studentDtos;
+        if(university.isEmpty()) {
+            return studentRepository.findAll().stream().map(studentDaoToDtoMapper::toValue).collect(Collectors.toList());
+        }
+
+        // if scalability is a factor, we could use spring batch and implememnt a processor which does exactly this
+        return studentRepository.findAll()
+                .stream()
+                .map(studentDaoToDtoMapper::toValue)
+                .filter(studentDto -> studentDto.getUniversityEnrollment().getUniversityName().equalsIgnoreCase(university))
+                .collect(Collectors.toList());
     }
 
     public void deleteStudent(String name, String address) {
