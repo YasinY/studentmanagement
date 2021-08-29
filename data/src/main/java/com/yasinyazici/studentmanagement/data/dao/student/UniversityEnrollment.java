@@ -4,9 +4,11 @@ import com.yasinyazici.studentmanagement.data.dao.university.UniversityEnrollmen
 import com.yasinyazici.studentmanagement.data.dao.university.UniversityProgress;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 @Builder
 @Getter
+@Setter
 public class UniversityEnrollment {
 
     private final String universityName;

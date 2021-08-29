@@ -2,25 +2,25 @@ package com.yasinyazici.studentmanagement.data.dao.student;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
+@Setter
 @Builder
 @Document(collection = "students")
 @ToString
 public class StudentDao {
 
     @Id
-    private final String id;
+    private String id;
 
-    @Indexed
-    private final String name;
+    private String name;
 
-    private final String address;
+    private String address;
 
-    private final UniversityEnrollment universityEnrollment;
+    private UniversityEnrollment universityEnrollment;
 
 }

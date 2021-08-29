@@ -12,6 +12,8 @@ public interface IStudentRepository extends MongoRepository<StudentDao, String> 
 
     public List<StudentDao> findByAddress(String address);
 
+    public StudentDao findByNameAndAddress(String name, String address);
+
     public List<StudentDao> findByUniversityEnrollment(UniversityEnrollment universityEnrollment);
 
 

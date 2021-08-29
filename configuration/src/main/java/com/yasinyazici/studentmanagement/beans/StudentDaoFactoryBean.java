@@ -10,7 +10,6 @@ public class StudentDaoFactoryBean {
 
     private final IStudentDaoFactory studentDaoFactory = new StudentDaoFactory();
 
-
     @Bean
     public IStudentDaoFactory studentDaoFactory() {
         return studentDaoFactory;

@@ -1,12 +1,14 @@
 package com.yasinyazici.studentmanagement.controller;
 
 import com.yasinyazici.studentmanagement.data.constants.FactoryConstants;
+import com.yasinyazici.studentmanagement.data.dao.student.UniversityEnrollment;
 import com.yasinyazici.studentmanagement.data.dto.student.StudentDto;
 import com.yasinyazici.studentmanagement.service.EnrollmentService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -21,31 +23,60 @@ public class StudentController {
     @PostMapping(value = "/student", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StudentDto> createNewStudent(@RequestBody Map<String, String> body) {
         String universityName = body.get("universityName");
-        String name = body.get("name");
-        String address = body.get("address");
-        if (hasMissingAttributesInBody(universityName, name, address)) {
+        String studentName = body.get("name");
+        String studentAddress = body.get("address");
+        if (hasMissingAttributesInBody(universityName, studentName, studentAddress)) {
             return ResponseEntity.badRequest().build();
         }
-        if (hasInvalidBody(universityName, name, address)) {
+        if (hasInvalidBody(universityName, studentName, studentAddress)) {
             return ResponseEntity.badRequest().build();
         }
 
-        enrollmentService.createNewStudent(universityName, name, address);
+        enrollmentService.createNewStudent(universityName, studentName, studentAddress);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping
+    @GetMapping(value = "/student", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<StudentDto>> getStudents() {
+
+        return ResponseEntity.ok(enrollmentService.getExistingStudents());
+    }
+
+    @PutMapping(value = "/student/update", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> updateStudent(@RequestBody Map<String, Object> body) {
+        String studentName = body.get("name").toString();
+        String address = body.get("address").toString();
+        Object updatedEnrollment = body.get("universityEnrollment");
+        if (updatedEnrollment == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        UniversityEnrollment universityEnrollment = ((UniversityEnrollment) updatedEnrollment);
+        enrollmentService.updateExistingStudent(studentName, address, universityEnrollment);
+        return ResponseEntity.ok().build();
+    }
 
     private boolean hasMissingAttributesInBody(String universityName, String name, String address) {
         return universityName == null || name == null || address == null;
     }
 
     private boolean hasInvalidBody(String universityName, String name, String address) {
-        if (universityName.length() < FactoryConstants.MINIMUM_UNIVERSITY_NAME_LENGTH_REQUIREMENT
-                || name.length() < FactoryConstants.MINIMUM_NAME_LENGTH_REQUIRED
-                || address.length() < FactoryConstants.MINIMUM_ADDRESS_LENGTH_REQUIRED) {
+        if (hasInvalidUniversityName(universityName)
+                || hasInvalidStudentName(name)
+                || hasInvalidAddress(address)) {
             return true;
         }
         return false;
+    }
+
+    private boolean hasInvalidAddress(String address) {
+        return address.length() < FactoryConstants.MINIMUM_ADDRESS_LENGTH_REQUIRED;
+    }
+
+    private boolean hasInvalidStudentName(String name) {
+        return name.length() < FactoryConstants.MINIMUM_NAME_LENGTH_REQUIRED;
+    }
+
+    private boolean hasInvalidUniversityName(String universityName) {
+        return universityName.length() < FactoryConstants.MINIMUM_UNIVERSITY_NAME_LENGTH_REQUIREMENT;
     }
 }

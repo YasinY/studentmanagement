@@ -4,9 +4,8 @@ import com.yasinyazici.studentmanagement.data.dao.student.StudentDao;
 import com.yasinyazici.studentmanagement.data.dao.student.UniversityEnrollment;
 import com.yasinyazici.studentmanagement.data.dto.student.StudentDto;
 import com.yasinyazici.studentmanagement.data.factory.IStudentDtoFactory;
-import org.springframework.stereotype.Component;
 
-@Component
+
 public class StudentDaoToDtoMapper implements IMapper<StudentDao, StudentDto> {
 
     private final IStudentDtoFactory studentDtoFactory;
