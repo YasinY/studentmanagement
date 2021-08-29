@@ -118,7 +118,3 @@ WARNING: Illegal reflective access by org.springframework.cglib.core.ReflectUtil
 WARNING: Please consider reporting this to the maintainers of org.springframework.cglib.core.ReflectUtils
 WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations
 WARNING: All illegal access operations will be denied in a future release
-
-TODO guide how to set up stuff, wat the point is and so on and forth
-
-#SOFTWARECRAFTSMANSHIP
