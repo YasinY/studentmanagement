@@ -1,8 +1,8 @@
 package com.yasinyazici.studentmanagement.controller;
 
-import com.yasinyazici.studentmanagement.data.constants.FactoryConstants;
 import com.yasinyazici.studentmanagement.data.dto.student.StudentDto;
 import com.yasinyazici.studentmanagement.service.EnrollmentService;
+import com.yasinyazici.studentmanagement.validation.BodyValidation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +17,11 @@ public class StudentController {
 
     private final EnrollmentService enrollmentService;
 
+    private final BodyValidation bodyValidation;
+
     public StudentController(EnrollmentService enrollmentService) {
         this.enrollmentService = enrollmentService;
+        this.bodyValidation = new BodyValidation();
     }
 
     @GetMapping(value = "/student", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -29,13 +32,13 @@ public class StudentController {
 
     @PostMapping(value = "/student", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StudentDto> createNewStudent(@RequestBody Map<String, String> body) {
-        if(invalidBody(body) && !body.containsKey("universityName")) {
+        if (bodyValidation.invalidBody(body) && !body.containsKey("universityName")) {
             return ResponseEntity.badRequest().build();
         }
         String universityName = body.get("universityName");
         String studentName = body.get("name");
         String studentAddress = body.get("address");
-        if (hasInvalidBody(studentName, studentAddress, universityName)) {
+        if (bodyValidation.hasInvalidBody(studentName, studentAddress, universityName)) {
             return ResponseEntity.badRequest().build();
         }
 
@@ -45,14 +48,14 @@ public class StudentController {
 
     @PutMapping(value = "/student", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> updateUniversity(@RequestBody Map<String, String> body) {
-        if(invalidBody(body) && !body.containsKey("universityName")) {
+        if (bodyValidation.invalidBody(body) && !body.containsKey("universityName")) {
             return ResponseEntity.badRequest().build();
         }
         String newUniversityName = body.get("universityName");
         String studentName = body.get("name");
         String studentAddress = body.get("address");
 
-        if (hasInvalidBody(studentName, studentAddress, newUniversityName)) {
+        if (bodyValidation.hasInvalidBody(studentName, studentAddress, newUniversityName)) {
             return ResponseEntity.badRequest().build();
         }
 
@@ -62,39 +65,18 @@ public class StudentController {
 
     @DeleteMapping(value = "/student", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> deleteStudent(@RequestBody Map<String, String> body) {
-        if(invalidBody(body)) {
+        if (bodyValidation.invalidBody(body)) {
             return ResponseEntity.badRequest().build();
         }
 
         String studentName = body.get("name");
         String studentAddress = body.get("address");
 
-        if (hasInvalidStudentName(studentName) || hasInvalidAddress(studentAddress)) {
+        if (bodyValidation.hasInvalidStudentName(studentName) || bodyValidation.hasInvalidAddress(studentAddress)) {
             return ResponseEntity.badRequest().build();
         }
 
+        enrollmentService.deleteStudent(studentName, studentAddress);
         return ResponseEntity.ok().build();
-    }
-
-    private boolean invalidBody(Map<String, String> body) {
-        return body == null || !body.containsKey("name") || !body.containsKey("address");
-    }
-
-    private boolean hasInvalidBody(String name, String address, String universityName) {
-        return hasInvalidUniversityName(universityName)
-                || hasInvalidStudentName(name)
-                || hasInvalidAddress(address);
-    }
-
-    private boolean hasInvalidAddress(String address) {
-        return address.length() < FactoryConstants.MINIMUM_ADDRESS_LENGTH_REQUIRED;
-    }
-
-    private boolean hasInvalidStudentName(String name) {
-        return name.length() < FactoryConstants.MINIMUM_NAME_LENGTH_REQUIRED;
-    }
-
-    private boolean hasInvalidUniversityName(String universityName) {
-        return universityName.length() < FactoryConstants.MINIMUM_UNIVERSITY_NAME_LENGTH_REQUIREMENT;
     }
 }
