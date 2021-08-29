@@ -129,6 +129,7 @@ public class EnrollmentService {
 
         student.setUniversityEnrollment(newEnrollmentData);
         studentRepository.save(student);
+
         newUniversityDao.getStudentEnrollmentIds().add(newEnrollmentData.getEnrollmentId());
         universityRepository.save(newUniversityDao);
     }

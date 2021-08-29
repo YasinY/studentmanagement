@@ -21,18 +21,21 @@ public class StudentController {
         this.enrollmentService = enrollmentService;
     }
 
+    @GetMapping(value = "/student", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<StudentDto>> getStudents() {
+
+        return ResponseEntity.ok(enrollmentService.getExistingStudents());
+    }
+
     @PostMapping(value = "/student", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StudentDto> createNewStudent(@RequestBody Map<String, String> body) {
-        if(body == null) {
+        if(!validBody(body) && !body.containsKey("universityName")) {
             return ResponseEntity.badRequest().build();
         }
         String universityName = body.get("universityName");
         String studentName = body.get("name");
         String studentAddress = body.get("address");
-        if (hasMissingAttributesInBody(universityName, studentName, studentAddress)) {
-            return ResponseEntity.badRequest().build();
-        }
-        if (hasInvalidBody(universityName, studentName, studentAddress)) {
+        if (hasInvalidBody(studentName, studentAddress, universityName)) {
             return ResponseEntity.badRequest().build();
         }
 
@@ -40,38 +43,44 @@ public class StudentController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping(value = "/student", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<StudentDto>> getStudents() {
-
-        return ResponseEntity.ok(enrollmentService.getExistingStudents());
-    }
-
-    @PutMapping(value = "/student/update", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/student", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> updateUniversity(@RequestBody Map<String, String> body) {
-        if (body == null) {
+        if(!validBody(body) && !body.containsKey("universityName")) {
             return ResponseEntity.badRequest().build();
         }
         String newUniversityName = body.get("universityName");
         String studentName = body.get("name");
         String studentAddress = body.get("address");
 
-        if (hasMissingAttributesInBody(newUniversityName, studentName, studentAddress)) {
+        if (hasInvalidBody(studentName, studentAddress, newUniversityName)) {
             return ResponseEntity.badRequest().build();
         }
-        if (hasInvalidBody(newUniversityName, studentName, studentAddress)) {
-            return ResponseEntity.badRequest().build();
-        }
-
 
         enrollmentService.updateExistingStudent(studentName, studentAddress, newUniversityName);
         return ResponseEntity.ok().build();
     }
 
-    private boolean hasMissingAttributesInBody(String universityName, String name, String address) {
-        return universityName == null || name == null || address == null;
+    @DeleteMapping(value = "/student", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> deleteStudent(@RequestBody Map<String, String> body) {
+        if(!validBody(body)) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        String studentName = body.get("name");
+        String studentAddress = body.get("address");
+
+        if (hasInvalidStudentName(studentName) || hasInvalidAddress(studentAddress)) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        return ResponseEntity.ok().build();
     }
 
-    private boolean hasInvalidBody(String universityName, String name, String address) {
+    private boolean validBody(Map<String, String> body) {
+        return body != null && body.containsKey("name") && body.containsKey("address");
+    }
+
+    private boolean hasInvalidBody(String name, String address, String universityName) {
         return hasInvalidUniversityName(universityName)
                 || hasInvalidStudentName(name)
                 || hasInvalidAddress(address);
