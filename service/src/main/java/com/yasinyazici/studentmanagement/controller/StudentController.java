@@ -29,7 +29,7 @@ public class StudentController {
 
     @PostMapping(value = "/student", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StudentDto> createNewStudent(@RequestBody Map<String, String> body) {
-        if(!validBody(body) && !body.containsKey("universityName")) {
+        if(invalidBody(body) && !body.containsKey("universityName")) {
             return ResponseEntity.badRequest().build();
         }
         String universityName = body.get("universityName");
@@ -45,7 +45,7 @@ public class StudentController {
 
     @PutMapping(value = "/student", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> updateUniversity(@RequestBody Map<String, String> body) {
-        if(!validBody(body) && !body.containsKey("universityName")) {
+        if(invalidBody(body) && !body.containsKey("universityName")) {
             return ResponseEntity.badRequest().build();
         }
         String newUniversityName = body.get("universityName");
@@ -62,7 +62,7 @@ public class StudentController {
 
     @DeleteMapping(value = "/student", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> deleteStudent(@RequestBody Map<String, String> body) {
-        if(!validBody(body)) {
+        if(invalidBody(body)) {
             return ResponseEntity.badRequest().build();
         }
 
@@ -76,8 +76,8 @@ public class StudentController {
         return ResponseEntity.ok().build();
     }
 
-    private boolean validBody(Map<String, String> body) {
-        return body != null && body.containsKey("name") && body.containsKey("address");
+    private boolean invalidBody(Map<String, String> body) {
+        return body == null || !body.containsKey("name") || !body.containsKey("address");
     }
 
     private boolean hasInvalidBody(String name, String address, String universityName) {
