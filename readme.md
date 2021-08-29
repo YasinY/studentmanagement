@@ -1,4 +1,4 @@
-#Project
+# Project
 Student management app:
 The task is to create a spring boot application to manage and organize students.
 A student is subscribed at an university and can be created, deleted and updated.
@@ -25,6 +25,20 @@ followed by
 ``db.createUser({ user: "yasin", pwd: "yazici", roles: [ { role: "userAdminAnyDatabase", db: "admin" } ] })``  
 Feel free to close the connection via the CLI (but keep the mongod command prompt open!)  
 
+On overall it should look similar to this:
+![image](https://user-images.githubusercontent.com/10624021/131264788-8c9ac722-db72-4721-8cdb-8c2f435d0410.png)
+
+Now, import this project via your favourite IDE through git: https://github.com/YasinY/studentmanagement.git
+or download the source code and import it as *maven project*.
+
+For IntelliJ IDEA: 
+https://www.lagomframework.com/documentation/1.6.x/java/IntellijMaven.html
+
+For Eclipse:
+https://www.lagomframework.com/documentation/1.6.x/java/EclipseMavenInt.html
+
+For NetBeans:
+https://dzone.com/articles/importing-a-maven-project-in-netbeans
 
 ---
 
