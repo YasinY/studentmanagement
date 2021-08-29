@@ -81,6 +81,9 @@ GET - localhost:8080/student
 Gets a list of ALL current students, for every university.  
 Basic Auth required: yes  
 
+GET - localhost:8080/student?university=University Name  
+Gets a list of ALL current students, for the specified university 
+Basic Auth required: yes  
   
 PATCH - localhost:8080/student  
 Updates a students university name, if the university is available in the corresponding collection.  
