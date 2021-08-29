@@ -1,9 +1,9 @@
 package com.yasinyazici.studentmanagement.controller;
 
 import com.yasinyazici.studentmanagement.data.constants.FactoryConstants;
-import com.yasinyazici.studentmanagement.data.dao.student.UniversityEnrollment;
 import com.yasinyazici.studentmanagement.data.dto.student.StudentDto;
 import com.yasinyazici.studentmanagement.service.EnrollmentService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RestController
 public class StudentController {
 
@@ -22,6 +23,9 @@ public class StudentController {
 
     @PostMapping(value = "/student", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StudentDto> createNewStudent(@RequestBody Map<String, String> body) {
+        if(body == null) {
+            return ResponseEntity.badRequest().build();
+        }
         String universityName = body.get("universityName");
         String studentName = body.get("name");
         String studentAddress = body.get("address");
@@ -43,15 +47,23 @@ public class StudentController {
     }
 
     @PutMapping(value = "/student/update", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> updateStudent(@RequestBody Map<String, Object> body) {
-        String studentName = body.get("name").toString();
-        String address = body.get("address").toString();
-        Object updatedEnrollment = body.get("universityEnrollment");
-        if (updatedEnrollment == null) {
+    public ResponseEntity<?> updateUniversity(@RequestBody Map<String, String> body) {
+        if (body == null) {
             return ResponseEntity.badRequest().build();
         }
-        UniversityEnrollment universityEnrollment = ((UniversityEnrollment) updatedEnrollment);
-        enrollmentService.updateExistingStudent(studentName, address, universityEnrollment);
+        String newUniversityName = body.get("universityName");
+        String studentName = body.get("name");
+        String studentAddress = body.get("address");
+
+        if (hasMissingAttributesInBody(newUniversityName, studentName, studentAddress)) {
+            return ResponseEntity.badRequest().build();
+        }
+        if (hasInvalidBody(newUniversityName, studentName, studentAddress)) {
+            return ResponseEntity.badRequest().build();
+        }
+
+
+        enrollmentService.updateExistingStudent(studentName, studentAddress, newUniversityName);
         return ResponseEntity.ok().build();
     }
 
@@ -60,12 +72,9 @@ public class StudentController {
     }
 
     private boolean hasInvalidBody(String universityName, String name, String address) {
-        if (hasInvalidUniversityName(universityName)
+        return hasInvalidUniversityName(universityName)
                 || hasInvalidStudentName(name)
-                || hasInvalidAddress(address)) {
-            return true;
-        }
-        return false;
+                || hasInvalidAddress(address);
     }
 
     private boolean hasInvalidAddress(String address) {

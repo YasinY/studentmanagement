@@ -21,11 +21,11 @@ public class StudentDaoToDtoMapper implements IMapper<StudentDao, StudentDto> {
     }
 
     @Override
-    public StudentDto toValue(StudentDao key) {
-        final UniversityEnrollment universityEnrollment = key.getUniversityEnrollment();
+    public StudentDto toValue(StudentDao studentDao) {
+        final UniversityEnrollment universityEnrollment = studentDao.getUniversityEnrollment();
         final StudentDto studentDto = studentDtoFactory.create(
-                key.getName(),
-                key.getAddress(),
+                studentDao.getName(),
+                studentDao.getAddress(),
                 universityEnrollment
         );
 

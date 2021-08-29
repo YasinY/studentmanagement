@@ -10,6 +10,7 @@ public class StudentDtoFactory implements IStudentDtoFactory {
         //dont need to validate here as it comes from our DAO.
         final StudentDto studentDto = StudentDto.builder()
                 .name(name)
+                .address(address)
                 .universityEnrollment(universityEnrollment)
                 .build();
 

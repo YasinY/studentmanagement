@@ -55,13 +55,13 @@ public class EnrollmentService {
         return universityDao;
     }
 
-    public void createNewStudent(String universityName, String name, String address) {
-        if (!studentRepository.findByName(name).isEmpty() && !studentRepository.findByAddress(address).isEmpty()) {
+    public void createNewStudent(String universityName, String name, String studentAddress) {
+        if (!studentRepository.findByName(name).isEmpty() && !studentRepository.findByAddress(studentAddress).isEmpty()) {
             throw new ExistentStudentException(name);
         }
         final UniversityDao universityDao = retrieveUniversityDao(universityName);
         final UniversityEnrollment universityEnrollment = generateNewUniversityEnrollment(universityName);
-        final StudentDao studentDao = studentDaoFactory.create(name, address, universityEnrollment);
+        final StudentDao studentDao = studentDaoFactory.create(name, studentAddress, universityEnrollment);
 
         universityDao.getStudentEnrollmentIds().add(studentDao.getUniversityEnrollment().getEnrollmentId());
         studentRepository.save(studentDao);
@@ -75,7 +75,7 @@ public class EnrollmentService {
         return studentDtos;
     }
 
-    public void updateExistingStudent(String name, String address, UniversityEnrollment newEnrollmentData) {
+    public void updateExistingStudent(String newUniversityName, String name, String address) {
         StudentDao student = studentRepository.findByNameAndAddress(name, address);
         if (student == null) { //todo usually optionals would be better, does mongo support that? idk no time
             throw new NotExistentStudentException(name, address);
@@ -85,28 +85,30 @@ public class EnrollmentService {
 
         final String currentStudentsUniversityName = studentUniversityEnrollment.getUniversityName();
         final UniversityDao currentUniversityDao = retrieveUniversityDao(currentStudentsUniversityName);
-        final boolean universityChanged = !newEnrollmentData.getUniversityName().equalsIgnoreCase(currentStudentsUniversityName);
+        final boolean universityChanged = !newUniversityName.equalsIgnoreCase(currentStudentsUniversityName);
 
         if (universityChanged) {
-            handleUniversityChange(newEnrollmentData, student, currentUniversityDao);
+            handleUniversityChange(newUniversityName, student, currentUniversityDao);
         }
-
-        student.setUniversityEnrollment(newEnrollmentData);
-        studentRepository.save(student);
     }
 
-    private void handleUniversityChange(UniversityEnrollment newEnrollmentData, StudentDao student, UniversityDao currentUniversityDao) {
+    private void handleUniversityChange(String newUniversityName, StudentDao student, UniversityDao currentUniversityDao) {
 
         currentUniversityDao.getStudentEnrollmentIds().remove(student.getUniversityEnrollment().getEnrollmentId());
         universityRepository.save(currentUniversityDao); // persist
 
-        final UniversityDao newUniversityDao = retrieveUniversityDao(newEnrollmentData.getUniversityName());
+        final UniversityDao newUniversityDao = retrieveUniversityDao(newUniversityName);
+
+        final UniversityEnrollment newEnrollmentData = generateNewUniversityEnrollment(newUniversityName);
 
         final boolean studentAlreadyMatriculated = newUniversityDao.getStudentEnrollmentIds().contains(newEnrollmentData.getEnrollmentId());
+
         if (studentAlreadyMatriculated) {
-            throw new StudentAlreadyMatriculatedException(student.getName(), newEnrollmentData.getUniversityName());
+            throw new StudentAlreadyMatriculatedException(student.getName(), newUniversityName);
         }
 
+        student.setUniversityEnrollment(newEnrollmentData);
+        studentRepository.save(student);
         newUniversityDao.getStudentEnrollmentIds().add(newEnrollmentData.getEnrollmentId());
         universityRepository.save(newUniversityDao);
     }

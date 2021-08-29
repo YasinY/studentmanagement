@@ -5,5 +5,5 @@ import com.yasinyazici.studentmanagement.data.dao.student.UniversityEnrollment;
 
 public interface IStudentDaoFactory {
 
-    StudentDao create(String name, String address,  UniversityEnrollment universityEnrollment);
+    StudentDao create(String name, String address, UniversityEnrollment universityEnrollment);
 }

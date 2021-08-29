@@ -11,14 +11,14 @@ import lombok.Setter;
 @Setter
 public class UniversityEnrollment {
 
-    private final String universityName;
+    private String universityName;
 
-    private final long enrollmentId;
+    private long enrollmentId;
 
-    private final short credits;
+    private short credits;
 
-    private final UniversityProgress universityProgress;
+    private UniversityProgress universityProgress;
 
-    private final UniversityEnrollmentState universityEnrollmentState;
+    private UniversityEnrollmentState universityEnrollmentState;
 
 }
