@@ -4,8 +4,6 @@ import com.yasinyazici.studentmanagement.data.dao.student.StudentDao;
 import com.yasinyazici.studentmanagement.data.dao.student.UniversityEnrollment;
 import com.yasinyazici.studentmanagement.data.dao.university.UniversityDao;
 import com.yasinyazici.studentmanagement.data.dto.student.StudentDto;
-import com.yasinyazici.studentmanagement.data.exception.ExistentStudentException;
-import com.yasinyazici.studentmanagement.data.exception.NotExistentStudentException;
 import com.yasinyazici.studentmanagement.data.exception.NotExistentUniversityException;
 import com.yasinyazici.studentmanagement.data.exception.StudentAlreadyMatriculatedException;
 import com.yasinyazici.studentmanagement.data.factory.IStudentDaoFactory;
@@ -17,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -58,7 +57,7 @@ public class EnrollmentService {
     public void createNewStudent(String universityName, String name, String studentAddress) {
         final boolean studentAlreadyExists = !studentRepository.findByName(name).isEmpty() && !studentRepository.findByAddress(studentAddress).isEmpty();
         if (studentAlreadyExists) {
-            throw new ExistentStudentException(name);
+            return;
         }
         final UniversityDao universityDao = retrieveUniversityDao(universityName);
         final UniversityEnrollment universityEnrollment = generateNewUniversityEnrollment(universityName);
@@ -72,18 +71,20 @@ public class EnrollmentService {
         log.info("Created new student");
     }
 
-    public void updateExistingStudent(String newUniversityName, String name, String address) {
-        StudentDao student = getStudent(name, address);
+    public void updateExistingStudent(String name, String address, String newUniversityName) {
+        Optional<StudentDao> potentialStudent = getStudent(name, address);
 
-        final UniversityEnrollment studentUniversityEnrollment = student.getUniversityEnrollment();
+        potentialStudent.ifPresent(student -> {
+            final UniversityEnrollment studentUniversityEnrollment = student.getUniversityEnrollment();
 
-        final String currentStudentsUniversityName = studentUniversityEnrollment.getUniversityName();
-        final UniversityDao currentUniversityDao = retrieveUniversityDao(currentStudentsUniversityName);
-        final boolean universityChanged = !newUniversityName.equalsIgnoreCase(currentStudentsUniversityName);
+            final String currentStudentsUniversityName = studentUniversityEnrollment.getUniversityName();
+            final UniversityDao currentUniversityDao = retrieveUniversityDao(currentStudentsUniversityName);
+            final boolean universityChanged = !newUniversityName.equalsIgnoreCase(currentStudentsUniversityName);
 
-        if (universityChanged) {
-            handleUniversityChange(newUniversityName, student, currentUniversityDao);
-        }
+            if (universityChanged) {
+                handleUniversityChange(newUniversityName, student, currentUniversityDao);
+            }
+        });
     }
 
     public List<StudentDto> getExistingStudents() {
@@ -93,20 +94,22 @@ public class EnrollmentService {
     }
 
     public void deleteStudent(String name, String address) {
-        final StudentDao student = getStudent(name, address);
-        final UniversityDao universityDao = retrieveUniversityDao(student.getUniversityEnrollment().getUniversityName());
+        final Optional<StudentDao> potentialStudent = getStudent(name, address);
 
-        studentRepository.delete(student);
-        universityDao.getStudentEnrollmentIds().removeIf(universityDaoId -> universityDaoId == student.getUniversityEnrollment().getEnrollmentId());
+        potentialStudent.ifPresent(student -> {
+            final UniversityDao universityDao = retrieveUniversityDao(student.getUniversityEnrollment().getUniversityName());
+            studentRepository.delete(student);
+            universityDao.getStudentEnrollmentIds().removeIf(universityDaoId -> universityDaoId == student.getUniversityEnrollment().getEnrollmentId());
+        });
     }
 
-    private StudentDao getStudent(String name, String address) {
+    private Optional<StudentDao> getStudent(String name, String address) {
         StudentDao student = studentRepository.findByNameAndAddress(name, address);
         if (student == null) { //todo usually optionals would be better, does mongo support that? idk no time
-            throw new NotExistentStudentException(name, address);
+            return Optional.empty();
         }
 
-        return student;
+        return Optional.of(student);
     }
 
     private void handleUniversityChange(String newUniversityName, StudentDao student, UniversityDao currentUniversityDao) {
