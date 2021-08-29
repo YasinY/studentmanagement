@@ -21,6 +21,7 @@
     <junit.version>4.11</junit.version>
     <lombok.version>1.18.20</lombok.version>
     <start-class>com.yasinyazici.studentmanagement.StudentManagementApplication</start-class>
+    <snapshot.version>1.0-SNAPSHOT</snapshot.version>
   </properties>
 
   <dependencies>

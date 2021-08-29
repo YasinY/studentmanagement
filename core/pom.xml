@@ -40,19 +40,19 @@
     <dependency>
       <groupId>com.yasinyazici.studentmanagement</groupId>
       <artifactId>configuration</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>${snapshot.version}</version>
     </dependency>
 
     <dependency>
       <groupId>com.yasinyazici.studentmanagement</groupId>
       <artifactId>data</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>${snapshot.version}</version>
     </dependency>
 
     <dependency>
       <groupId>com.yasinyazici.studentmanagement</groupId>
       <artifactId>service</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>${snapshot.version}</version>
     </dependency>
 
   </dependencies>
