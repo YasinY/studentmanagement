@@ -82,7 +82,7 @@ Gets a list of ALL current students, for every university.
 Basic Auth required: yes  
 
 GET - localhost:8080/student?university=University Name  
-Gets a list of ALL current students, for the specified university 
+Gets a list of ALL current students, for the specified university  
 Basic Auth required: yes  
   
 PATCH - localhost:8080/student  
@@ -104,6 +104,23 @@ Example Body:
     "name": "Yasin",
     "address": "NicebnAUTZe"
 } 
+``
+
+GET - localhost:8080/universities  
+Lists all registered universities  
+Basic auth required: yes
+
+POST - localhost:8080/university/exmatriculate  
+Exmatriculates a student from his current university, 
+although the entry remains on both entities  
+Basic Auth required: yes  
+Example Body:  
+``
+{
+"name": "Yasin",
+"address": "NicebnAUTZe",
+"finished": false
+}
 ``
   
 # TODO:

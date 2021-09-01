@@ -11,7 +11,6 @@ public class StudentServiceBean {
 
     private final EnrollmentService enrollmentService;
 
-
     public StudentServiceBean(IUniversityEnrollmentFactory universityEnrollmentFactory, IStudentDaoFactory studentDaoFactory) {
         this.enrollmentService = new EnrollmentService(universityEnrollmentFactory, studentDaoFactory);
     }
