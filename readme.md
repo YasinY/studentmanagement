@@ -61,7 +61,9 @@ For all routes you require basic auth. I suggest postman, as you can easily set 
 Which is in this case:
 
 ``Username: yasin``  
-``Password: yazici``
+``Password: yazici``  
+You can change the username and password required for basic auth at the application.properties file.  
+The security is the default security provider by spring-security.  
   
 ![image](https://user-images.githubusercontent.com/10624021/131265182-e79d5d8d-130f-4cb2-922f-f3c61a323f8a.png)
 
